@@ -3,10 +3,6 @@ const app = require('../server/app');
 const User = require('../server/Models/User');
 
 describe('POST /users', () => {
-	beforeEach(async () => {
-		await User.deleteMany();
-	});
-
 	it('should create a new user', async () => {
 		const newUser = {
 			name: 'test',
