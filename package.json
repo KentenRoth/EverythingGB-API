@@ -1,0 +1,33 @@
+{
+	"name": "everythinggb-api",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node server/index.js",
+		"dev": "./node_modules/.bin/env-cmd -f ./config/dev.env node server/index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/KentenRoth/EverythingGB-API.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/KentenRoth/EverythingGB-API/issues"
+	},
+	"homepage": "https://github.com/KentenRoth/EverythingGB-API#readme",
+	"dependencies": {
+		"bcryptjs": "^2.4.3",
+		"body-parser": "^1.20.2",
+		"dotenv": "^16.3.1",
+		"express": "^4.18.2",
+		"jsonwebtoken": "^9.0.2",
+		"mongodb": "^6.3.0",
+		"mongoose": "^8.0.3"
+	},
+	"devDependencies": {
+		"env-cmd": "^10.1.0"
+	}
+}
