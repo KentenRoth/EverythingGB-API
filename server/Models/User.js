@@ -32,6 +32,12 @@ const UserSchema = new Schema({
 		minlength: 7,
 		trim: true,
 	},
+	bookmarks: [
+		{
+			type: Schema.Types.ObjectId,
+			ref: 'Recipe',
+		},
+	],
 	tokens: [
 		{
 			token: {
