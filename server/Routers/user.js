@@ -43,4 +43,18 @@ router.get('/users/:id', async (req, res) => {
 	}
 });
 
+// Login User
+router.post('/users/login', async (req, res) => {
+	try {
+		const user = await User.findByCredentials(
+			req.body.email,
+			req.body.password
+		);
+		const authToken = await user.createAuthToken();
+		res.send({ user, authToken });
+	} catch (error) {
+		res.status(400).send(error.message);
+	}
+});
+
 module.exports = router;

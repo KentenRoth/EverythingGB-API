@@ -41,6 +41,36 @@ describe('POST /users', () => {
 			.expect(400);
 	});
 
+	it('should login user', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({
+				email: 'test@test.com',
+				password: 'test1234',
+			})
+			.expect(200);
+	});
+
+	it('should not login user with invalid email', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({
+				email: 'testing@test.com',
+				password: 'test1234',
+			})
+			.expect(400);
+	});
+
+	it('should not login user with invalid password', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({
+				email: 'test@test.com',
+				password: 'test12345',
+			})
+			.expect(400);
+	});
+
 	afterAll(async () => {
 		await User.deleteMany();
 	});
