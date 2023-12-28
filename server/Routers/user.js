@@ -15,10 +15,23 @@ router.post('/users', async (req, res) => {
 	}
 });
 
+// Gets all users
 router.get('/users', async (req, res) => {
 	try {
 		const users = await User.find({});
 		res.send(users);
+	} catch (e) {
+		res.status(500).send(e.message);
+	}
+});
+
+router.get('/users/:id', async (req, res) => {
+	try {
+		const user = await User.findById(req.params.id);
+		if (!user) {
+			return res.status(404).send();
+		}
+		res.send(user);
 	} catch (e) {
 		res.status(500).send(e.message);
 	}

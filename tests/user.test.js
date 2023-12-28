@@ -27,6 +27,18 @@ describe('POST /users', () => {
 			.expect(400);
 	});
 
+	it('should not create a new user with invalid password', async () => {
+		const newUser = {
+			name: 'test',
+			email: 'test@test.com',
+			password: 'test',
+		};
+		const response = await request(app)
+			.post('/users')
+			.send(newUser)
+			.expect(400);
+	});
+
 	afterAll(async () => {
 		await User.deleteMany();
 	});
@@ -72,6 +84,20 @@ describe('GET /users', () => {
 		const response = await request(app).get('/users').expect(200);
 		expect(response.body[0].password).not.toEqual('test1234');
 		expect(response.body[1].password).not.toEqual('test1234');
+	});
+
+	it('should get user by id', async () => {
+		const response = await request(app).get('/users').expect(200);
+		const id = response.body[0]._id;
+		const user = await request(app).get(`/users/${id}`).expect(200);
+		expect(user.body.name).toEqual('test');
+		expect(user.body.email).toEqual('test@test.com');
+	});
+
+	it('should not get user with invalid id', async () => {
+		const response = await request(app).get('/users').expect(200);
+		const id = response.body[0]._id;
+		const user = await request(app).get(`/users/${id}1`).expect(500);
 	});
 
 	afterAll(async () => {
