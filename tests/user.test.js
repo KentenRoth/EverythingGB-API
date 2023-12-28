@@ -1,5 +1,7 @@
 const request = require('supertest');
 const app = require('../server/app');
+const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const User = require('../server/Models/User');
 
 describe('POST /users', () => {
@@ -98,6 +100,42 @@ describe('GET /users', () => {
 		const response = await request(app).get('/users').expect(200);
 		const id = response.body[0]._id;
 		const user = await request(app).get(`/users/${id}1`).expect(500);
+	});
+
+	it('should get user that is logged in', async () => {
+		const newUser = {
+			name: 'test3',
+			email: 'test3@test.com',
+			password: 'test1234',
+		};
+		const response = await request(app)
+			.post('/users')
+			.send(newUser)
+			.expect(201);
+		const token = response.body.token;
+		const user = await request(app)
+			.get('/users/me')
+			.set('Authorization', `Bearer ${token}`)
+			.expect(200);
+		expect(user.body.name).toEqual('test3');
+		expect(user.body.email).toEqual('test3@test.com');
+	});
+
+	it('should not get user that is not logged in with bad auth token', async () => {
+		const newUser = {
+			name: 'test4',
+			email: 'test4@test.com',
+			password: 'test1234',
+		};
+		const response = await request(app)
+			.post('/users')
+			.send(newUser)
+			.expect(201);
+		const token = response.body.token;
+		const user = await request(app)
+			.get('/users/me')
+			.set('Authorization', `Bearer ${token}1`)
+			.expect(401);
 	});
 
 	afterAll(async () => {

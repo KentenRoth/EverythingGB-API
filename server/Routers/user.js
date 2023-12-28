@@ -25,6 +25,12 @@ router.get('/users', async (req, res) => {
 	}
 });
 
+// Gets user that is logged in
+router.get('/users/me', auth, async (req, res) => {
+	res.send(req.user);
+});
+
+// Gets user by id
 router.get('/users/:id', async (req, res) => {
 	try {
 		const user = await User.findById(req.params.id);
