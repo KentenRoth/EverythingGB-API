@@ -71,6 +71,25 @@ describe('POST /users', () => {
 			.expect(400);
 	});
 
+	it('should logout the user', async () => {
+		const newUser = {
+			name: 'test3',
+			email: 'test3@test.com',
+			password: 'test1234',
+		};
+		const response = await request(app)
+			.post('/users')
+			.send(newUser)
+			.expect(201);
+		const token = response.body.token;
+		await request(app)
+			.post('/users/logout')
+			.set('Authorization', `Bearer ${token}`)
+			.expect(200);
+		const user = await User.findOne({ email: 'test3@test.com' });
+		expect(user.tokens.length).toEqual(0);
+	});
+
 	afterAll(async () => {
 		await User.deleteMany();
 	});
