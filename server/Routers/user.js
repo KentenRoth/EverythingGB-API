@@ -70,4 +70,15 @@ router.post('/users/logout', auth, async (req, res) => {
 	}
 });
 
+// Logout User from all devices
+router.post('/users/logoutAll', auth, async (req, res) => {
+	try {
+		req.user.tokens = [];
+		await req.user.save();
+		res.send();
+	} catch (error) {
+		res.status(500).send();
+	}
+});
+
 module.exports = router;

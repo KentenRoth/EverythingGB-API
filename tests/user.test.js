@@ -90,6 +90,44 @@ describe('POST /users', () => {
 		expect(user.tokens.length).toEqual(0);
 	});
 
+	it('should not logout the user with bad auth token', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({ email: 'test@test.com', password: 'test1234' })
+			.expect(200);
+		await request(app)
+			.post('/users/logout')
+			.set('Authorization', `Bearer ${response.body.authToken}1`)
+			.expect(401);
+	});
+
+	it('should logout the user from all devices', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({
+				email: 'test@test.com',
+				password: 'test1234',
+			})
+			.expect(200);
+		await request(app)
+			.post('/users/logoutAll')
+			.set('Authorization', `Bearer ${response.body.authToken}`)
+			.expect(200);
+		const user = await User.findOne({ email: 'test@test.com' });
+		expect(user.tokens.length).toEqual(0);
+	});
+
+	it('should not logout the user from all devices with bad auth token', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({ email: 'test@test.com', password: 'test1234' })
+			.expect(200);
+		await request(app)
+			.post('/users/logoutAll')
+			.set('Authorization', `Bearer ${response.body.authToken}1`)
+			.expect(401);
+	});
+
 	afterAll(async () => {
 		await User.deleteMany();
 	});
