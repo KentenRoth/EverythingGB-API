@@ -81,4 +81,33 @@ router.post('/users/logoutAll', auth, async (req, res) => {
 	}
 });
 
+// Update User (only updates name, email, password, and bookmarks)
+router.patch('/users/me', auth, async (req, res) => {
+	const updates = Object.keys(req.body);
+	const allowedUpdates = ['name', 'email', 'password', 'bookmarks'];
+	const isValidOperation = updates.every((update) =>
+		allowedUpdates.includes(update)
+	);
+	if (!isValidOperation) {
+		return res.status(400).send({ error: 'Invalid updates' });
+	}
+	try {
+		updates.forEach((update) => {
+			if (update === 'bookmarks') {
+				if (
+					!req.user.bookmarks.includes(req.body.bookmarks.toString())
+				) {
+					req.user.bookmarks.push(req.body.bookmarks);
+				}
+			} else {
+				req.user[update] = req.body[update];
+			}
+		});
+		await req.user.save();
+		res.send(req.user);
+	} catch (e) {
+		res.status(400).send(e.message);
+	}
+});
+
 module.exports = router;

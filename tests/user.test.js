@@ -229,3 +229,139 @@ describe('GET /users', () => {
 		await User.deleteMany();
 	});
 });
+
+describe('PATCH /users', () => {
+	beforeAll(async () => {
+		const newUser = {
+			name: 'test',
+			email: 'test@test.com',
+			password: 'test1234',
+		};
+		const response = await request(app)
+			.post('/users')
+			.send(newUser)
+			.expect(201);
+	});
+
+	it('should update users name', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({ email: 'test@test.com', password: 'test1234' })
+			.expect(200);
+		const token = response.body.authToken;
+		await request(app)
+			.patch('/users/me')
+			.set('Authorization', `Bearer ${token}`)
+			.send({ name: 'test1' })
+			.expect(200);
+		const user = await User.findOne({ email: 'test@test.com' });
+		expect(user.name).toEqual('test1');
+	});
+
+	it('should update users email', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({ email: 'test@test.com', password: 'test1234' })
+			.expect(200);
+		const token = response.body.authToken;
+		await request(app)
+			.patch('/users/me')
+			.set('Authorization', `Bearer ${token}`)
+			.send({ email: 'test1@test.com' })
+			.expect(200);
+		const user = await User.findOne({ email: 'test1@test.com' });
+		expect(user.email).toEqual('test1@test.com');
+	});
+
+	it('should update users password', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({ email: 'test1@test.com', password: 'test1234' })
+			.expect(200);
+		const token = response.body.authToken;
+		await request(app)
+			.patch('/users/me')
+			.set('Authorization', `Bearer ${token}`)
+			.send({ password: 'test4321' })
+			.expect(200);
+		await request(app)
+			.post('/users/login')
+			.send({ email: 'test1@test.com', password: 'test4321' })
+			.expect(200);
+	});
+
+	it('should update users bookmarks', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({ email: 'test1@test.com', password: 'test4321' })
+			.expect(200);
+		const token = response.body.authToken;
+		await request(app)
+			.patch('/users/me')
+			.set('Authorization', `Bearer ${token}`)
+			.send({ bookmarks: ['5f1c9a2a1c9d440000b7d8f1'] })
+			.expect(200);
+		const user = await User.findOne({ email: 'test1@test.com' });
+		expect(user.bookmarks.length).toEqual(1);
+	});
+
+	it('should add to users bookmarks', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({ email: 'test1@test.com', password: 'test4321' })
+			.expect(200);
+		const token = response.body.authToken;
+		await request(app)
+			.patch('/users/me')
+			.set('Authorization', `Bearer ${token}`)
+			.send({ bookmarks: ['5f1c9a2a1c9d440000b7d8f2'] })
+			.expect(200);
+		const user = await User.findOne({ email: 'test1@test.com' });
+		expect(user.bookmarks.length).toEqual(2);
+	});
+
+	it('should not add duplicate to users bookmarks', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({ email: 'test1@test.com', password: 'test4321' })
+			.expect(200);
+		const token = response.body.authToken;
+		await request(app)
+			.patch('/users/me')
+			.set('Authorization', `Bearer ${token}`)
+			.send({ bookmarks: ['5f1c9a2a1c9d440000b7d8f2'] })
+			.expect(200);
+		const user = await User.findOne({ email: 'test1@test.com' });
+		expect(user.bookmarks.length).toEqual(2);
+	});
+
+	it('should not update role', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({ email: 'test1@test.com', password: 'test4321' })
+			.expect(200);
+		const token = response.body.authToken;
+		await request(app)
+			.patch('/users/me')
+			.set('Authorization', `Bearer ${token}`)
+			.send({ role: 'admin' })
+			.expect(400);
+	});
+
+	it('should not update with invalid token', async () => {
+		const response = await request(app)
+			.post('/users/login')
+			.send({ email: 'test1@test.com', password: 'test4321' })
+			.expect(200);
+		const token = response.body.authToken;
+		await request(app)
+			.patch('/users/me')
+			.set('Authorization', `Bearer ${token}1`)
+			.send({ name: 'test2' })
+			.expect(401);
+	});
+
+	afterAll(async () => {
+		await User.deleteMany();
+	});
+});
