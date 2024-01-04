@@ -5,6 +5,9 @@ const jwt = require('jsonwebtoken');
 const User = require('../server/Models/User');
 
 describe('POST /users', () => {
+	beforeAll(async () => {
+		User.deleteMany();
+	});
 	it('should create a new user', async () => {
 		const newUser = {
 			name: 'test',
