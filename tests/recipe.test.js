@@ -53,7 +53,8 @@ describe('POST /recipes', () => {
 			.send({
 				title: 'user test',
 				ingredients: ['test'],
-				instructions: 'test',
+				instructions: 'bake at 400, wait 20 minutes, enjoy',
+				category: ['snack', 'cookies'],
 			})
 			.expect(201);
 		await request(app)
@@ -62,7 +63,9 @@ describe('POST /recipes', () => {
 			.send({
 				title: 'admin test',
 				ingredients: ['test'],
-				instructions: 'test',
+				instructions:
+					'bake at 300 for 2 hours, stir ever 10 minutes, let rest 10 minutes',
+				category: ['dinner', 'potatoes'],
 			})
 			.expect(201);
 	});
