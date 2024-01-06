@@ -90,9 +90,9 @@ describe('GET /recipes', () => {
 			.set('Authorization', `Bearer ${userTwoToken}`)
 			.send()
 			.expect(200);
-		expect(response.body.length).toEqual(2);
-		expect(response.body[0].title).toEqual('Chocolate Chip Cookies');
-		expect(response.body[1].title).toEqual('Steak and Potatoes');
+		expect(response.body.data.length).toEqual(2);
+		expect(response.body.data[0].title).toEqual('Chocolate Chip Cookies');
+		expect(response.body.data[1].title).toEqual('Steak and Potatoes');
 	});
 
 	it('should get recipes of user created recipies and not admin', async () => {
@@ -101,8 +101,8 @@ describe('GET /recipes', () => {
 			.set('Authorization', `Bearer ${userOneToken}`)
 			.send()
 			.expect(200);
-		expect(response.body.length).toEqual(1);
-		expect(response.body[0].title).toEqual('Chocolate Chip Cookies');
+		expect(response.body.data.length).toEqual(1);
+		expect(response.body.data[0].title).toEqual('Chocolate Chip Cookies');
 	});
 
 	it('should not get recipes if not logged in', async () => {
@@ -116,7 +116,7 @@ describe('GET /recipes', () => {
 			.send()
 			.expect(200);
 		const recipe = await request(app)
-			.get(`/recipes/${response.body[0]._id}`)
+			.get(`/recipes/${response.body.data[0]._id}`)
 			.set('Authorization', `Bearer ${userOneToken}`)
 			.send()
 			.expect(200);
@@ -137,8 +137,8 @@ describe('GET /recipes', () => {
 			.set('Authorization', `Bearer ${userTwoToken}`)
 			.send()
 			.expect(200);
-		expect(response.body.length).toEqual(1);
-		expect(response.body[0].title).toEqual('Steak and Potatoes');
+		expect(response.body.data.length).toEqual(1);
+		expect(response.body.data[0].title).toEqual('Steak and Potatoes');
 	});
 
 	it('should search for recipes in title', async () => {
@@ -147,8 +147,8 @@ describe('GET /recipes', () => {
 			.set('Authorization', `Bearer ${userTwoToken}`)
 			.send()
 			.expect(200);
-		expect(response.body.length).toEqual(1);
-		expect(response.body[0].title).toEqual('Chocolate Chip Cookies');
+		expect(response.body.data.length).toEqual(1);
+		expect(response.body.data[0].title).toEqual('Chocolate Chip Cookies');
 	});
 
 	it('user should not be able to search for admin recipes', async () => {
@@ -157,7 +157,13 @@ describe('GET /recipes', () => {
 			.set('Authorization', `Bearer ${userOneToken}`)
 			.send()
 			.expect(200);
-		expect(response.body.length).toEqual(0);
+		expect(response.body.data.length).toEqual(0);
+	});
+});
+
+describe('Patch /recipes', () => {
+	it('should return true', () => {
+		expect(true).toBe(true);
 	});
 
 	afterAll(async () => {
