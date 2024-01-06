@@ -8,6 +8,7 @@ describe('POST /users', () => {
 	beforeAll(async () => {
 		User.deleteMany();
 	});
+
 	it('should create a new user', async () => {
 		const newUser = {
 			name: 'test',
