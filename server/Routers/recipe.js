@@ -28,6 +28,28 @@ router.get('/recipes', auth, async (req, res) => {
 	}
 });
 
+router.get('/recipes/search', auth, async (req, res) => {
+	try {
+		const searchQuery = req.query.q;
+		let recipes = await Recipe.find({
+			$or: [
+				{ title: { $regex: searchQuery, $options: 'i' } },
+				{ ingredients: { $regex: searchQuery, $options: 'i' } },
+				{ ingredientsSetTwo: { $regex: searchQuery, $options: 'i' } },
+				{ category: { $regex: searchQuery, $options: 'i' } },
+			],
+		}).populate('user');
+
+		if (req.user.role !== 'admin') {
+			recipes = recipes.filter((recipe) => recipe.user.role !== 'admin');
+		}
+
+		res.send(recipes);
+	} catch (e) {
+		res.status(500).send(e.message);
+	}
+});
+
 router.get('/recipes/:id', auth, async (req, res) => {
 	try {
 		const recipe = await Recipe.findById(req.params.id);

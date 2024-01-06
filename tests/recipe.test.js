@@ -51,8 +51,8 @@ describe('POST /recipes', () => {
 			.post('/recipes')
 			.set('Authorization', `Bearer ${userOneToken}`)
 			.send({
-				title: 'user test',
-				ingredients: ['test'],
+				title: 'Chocolate Chip Cookies',
+				ingredients: ['flour', 'sugar', 'chocolate chips'],
 				instructions: 'bake at 400, wait 20 minutes, enjoy',
 				category: ['snack', 'cookies'],
 			})
@@ -61,8 +61,9 @@ describe('POST /recipes', () => {
 			.post('/recipes')
 			.set('Authorization', `Bearer ${userTwoToken}`)
 			.send({
-				title: 'admin test',
-				ingredients: ['test'],
+				title: 'Steak and Potatoes',
+				ingredients: ['potatoes', 'salt'],
+				ingredientsSetTwo: ['steak', 'pepper'],
 				instructions:
 					'bake at 300 for 2 hours, stir ever 10 minutes, let rest 10 minutes',
 				category: ['dinner', 'potatoes'],
@@ -90,8 +91,8 @@ describe('GET /recipes', () => {
 			.send()
 			.expect(200);
 		expect(response.body.length).toEqual(2);
-		expect(response.body[0].title).toEqual('user test');
-		expect(response.body[1].title).toEqual('admin test');
+		expect(response.body[0].title).toEqual('Chocolate Chip Cookies');
+		expect(response.body[1].title).toEqual('Steak and Potatoes');
 	});
 
 	it('should get recipes of user created recipies and not admin', async () => {
@@ -101,7 +102,7 @@ describe('GET /recipes', () => {
 			.send()
 			.expect(200);
 		expect(response.body.length).toEqual(1);
-		expect(response.body[0].title).toEqual('user test');
+		expect(response.body[0].title).toEqual('Chocolate Chip Cookies');
 	});
 
 	it('should not get recipes if not logged in', async () => {
@@ -119,7 +120,7 @@ describe('GET /recipes', () => {
 			.set('Authorization', `Bearer ${userOneToken}`)
 			.send()
 			.expect(200);
-		expect(recipe.body.title).toEqual('user test');
+		expect(recipe.body.title).toEqual('Chocolate Chip Cookies');
 	});
 
 	it('should not get recipe with bad id', async () => {
@@ -128,6 +129,35 @@ describe('GET /recipes', () => {
 			.set('Authorization', `Bearer ${userOneToken}`)
 			.send()
 			.expect(500);
+	});
+
+	it('should search for recipes in category', async () => {
+		const response = await request(app)
+			.get('/recipes/search?q=dinner')
+			.set('Authorization', `Bearer ${userTwoToken}`)
+			.send()
+			.expect(200);
+		expect(response.body.length).toEqual(1);
+		expect(response.body[0].title).toEqual('Steak and Potatoes');
+	});
+
+	it('should search for recipes in title', async () => {
+		const response = await request(app)
+			.get('/recipes/search?q=cookies')
+			.set('Authorization', `Bearer ${userTwoToken}`)
+			.send()
+			.expect(200);
+		expect(response.body.length).toEqual(1);
+		expect(response.body[0].title).toEqual('Chocolate Chip Cookies');
+	});
+
+	it('user should not be able to search for admin recipes', async () => {
+		const response = await request(app)
+			.get('/recipes/search?q=dinner')
+			.set('Authorization', `Bearer ${userOneToken}`)
+			.send()
+			.expect(200);
+		expect(response.body.length).toEqual(0);
 	});
 
 	afterAll(async () => {
