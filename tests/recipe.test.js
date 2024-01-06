@@ -162,8 +162,53 @@ describe('GET /recipes', () => {
 });
 
 describe('Patch /recipes', () => {
-	it('should return true', () => {
-		expect(true).toBe(true);
+	it('should update recipe', async () => {
+		const response = await request(app)
+			.get('/recipes')
+			.set('Authorization', `Bearer ${userTwoToken}`)
+			.send()
+			.expect(200);
+		await request(app)
+			.patch(`/recipes/${response.body.data[1]._id}`)
+			.set('Authorization', `Bearer ${userTwoToken}`)
+			.send({
+				title: 'Ribeye and Potatoes',
+				ingredients: ['potatoes', 'paprika', 'butter'],
+				ingredientsSetTwo: ['ribeye', 'salt', 'pepper'],
+			})
+			.expect(200);
+		const recipe = await request(app)
+			.get(`/recipes/${response.body.data[1]._id}`)
+			.set('Authorization', `Bearer ${userTwoToken}`)
+			.send()
+			.expect(200);
+		expect(recipe.body.title).toEqual('Ribeye and Potatoes');
+		expect(recipe.body.ingredients).toEqual([
+			'potatoes',
+			'paprika',
+			'butter',
+		]);
+		expect(recipe.body.ingredientsSetTwo).toEqual([
+			'ribeye',
+			'salt',
+			'pepper',
+		]);
+	});
+
+	it('should not let user update recipe', async () => {
+		const response = await request(app)
+			.get('/recipes')
+			.set('Authorization', `Bearer ${userOneToken}`)
+			.send()
+			.expect(200);
+		await request(app)
+			.patch(`/recipes/${response.body.data[0]._id}`)
+			.set('Authorization', `Bearer ${userOneToken}`)
+			.send({
+				title: 'Sugar Cookies',
+				ingredients: ['flour', 'sugar', 'butter'],
+			})
+			.expect(403);
 	});
 
 	afterAll(async () => {
