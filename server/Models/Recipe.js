@@ -22,6 +22,11 @@ const RecipeSchema = new Schema({
 		required: true,
 		trim: true,
 	},
+	category: {
+		type: [String],
+		required: true,
+		trim: true,
+	},
 	notes: {
 		type: String,
 		required: false,
