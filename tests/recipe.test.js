@@ -37,6 +37,11 @@ const userTwo = {
 };
 
 describe('POST /recipes', () => {
+	beforeAll(async () => {
+		User.deleteMany();
+		Recipe.deleteMany();
+	});
+
 	it('Should create a new recipe', async () => {
 		await User.deleteMany();
 		await Recipe.deleteMany();
@@ -72,7 +77,9 @@ describe('POST /recipes', () => {
 			})
 			.expect(401);
 	});
+});
 
+describe('GET /recipes', () => {
 	it('should get recipes if user is admin', async () => {
 		const response = await request(app)
 			.get('/recipes')
@@ -92,6 +99,32 @@ describe('POST /recipes', () => {
 			.expect(200);
 		expect(response.body.length).toEqual(1);
 		expect(response.body[0].title).toEqual('user test');
+	});
+
+	it('should not get recipes if not logged in', async () => {
+		await request(app).get('/recipes').send().expect(401);
+	});
+
+	it('should get recipe by id', async () => {
+		const response = await request(app)
+			.get(`/recipes`)
+			.set('Authorization', `Bearer ${userOneToken}`)
+			.send()
+			.expect(200);
+		const recipe = await request(app)
+			.get(`/recipes/${response.body[0]._id}`)
+			.set('Authorization', `Bearer ${userOneToken}`)
+			.send()
+			.expect(200);
+		expect(recipe.body.title).toEqual('user test');
+	});
+
+	it('should not get recipe with bad id', async () => {
+		await request(app)
+			.get(`/recipes/123`)
+			.set('Authorization', `Bearer ${userOneToken}`)
+			.send()
+			.expect(500);
 	});
 
 	afterAll(async () => {
