@@ -55,7 +55,7 @@ describe('POST /recipes', () => {
 				title: 'Chocolate Chip Cookies',
 				ingredients: ['flour', 'sugar', 'chocolate chips'],
 				instructions: 'bake at 400, wait 20 minutes, enjoy',
-				category: ['snack', 'cookies'],
+				category: 'snack, cookies',
 			})
 			.expect(201);
 		await request(app)
@@ -67,7 +67,7 @@ describe('POST /recipes', () => {
 				ingredientsSetTwo: ['steak', 'pepper'],
 				instructions:
 					'bake at 300 for 2 hours, stir ever 10 minutes, let rest 10 minutes',
-				category: ['dinner', 'potatoes'],
+				category: 'dinner, steak, potatoes',
 			})
 			.expect(201);
 	});

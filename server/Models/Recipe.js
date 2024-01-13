@@ -23,7 +23,7 @@ const RecipeSchema = new Schema({
 		trim: true,
 	},
 	category: {
-		type: [String],
+		type: String,
 		required: true,
 		trim: true,
 	},
