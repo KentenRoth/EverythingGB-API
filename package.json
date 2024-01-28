@@ -6,7 +6,8 @@
 	"scripts": {
 		"test": "./node_modules/.bin/env-cmd -f ./config/test.env jest --watch",
 		"start": "node server/index.js",
-		"dev": "./node_modules/.bin/env-cmd -f ./config/dev.env node server/index.js"
+		"dev": "./node_modules/.bin/env-cmd -f ./config/dev.env node server/index.js",
+		"prod": "./node_modules/.bin/env-cmd -f ./config/prod.env node server/index.js"
 	},
 	"jest": {
 		"testEnvironment": "node"
