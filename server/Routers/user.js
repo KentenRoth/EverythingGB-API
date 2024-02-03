@@ -94,11 +94,7 @@ router.patch('/users/me', auth, async (req, res) => {
 	try {
 		updates.forEach((update) => {
 			if (update === 'bookmarks') {
-				if (
-					!req.user.bookmarks.includes(req.body.bookmarks.toString())
-				) {
-					req.user.bookmarks.push(req.body.bookmarks);
-				}
+				req.user.bookmarks = req.body.bookmarks;
 			} else {
 				req.user[update] = req.body[update];
 			}
