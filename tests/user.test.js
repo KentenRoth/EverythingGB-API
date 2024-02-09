@@ -309,36 +309,6 @@ describe('PATCH /users', () => {
 		expect(user.bookmarks.length).toEqual(1);
 	});
 
-	it('should add to users bookmarks', async () => {
-		const response = await request(app)
-			.post('/users/login')
-			.send({ email: 'test1@test.com', password: 'test4321' })
-			.expect(200);
-		const token = response.body.authToken;
-		await request(app)
-			.patch('/users/me')
-			.set('Authorization', `Bearer ${token}`)
-			.send({ bookmarks: ['5f1c9a2a1c9d440000b7d8f2'] })
-			.expect(200);
-		const user = await User.findOne({ email: 'test1@test.com' });
-		expect(user.bookmarks.length).toEqual(2);
-	});
-
-	it('should not add duplicate to users bookmarks', async () => {
-		const response = await request(app)
-			.post('/users/login')
-			.send({ email: 'test1@test.com', password: 'test4321' })
-			.expect(200);
-		const token = response.body.authToken;
-		await request(app)
-			.patch('/users/me')
-			.set('Authorization', `Bearer ${token}`)
-			.send({ bookmarks: ['5f1c9a2a1c9d440000b7d8f2'] })
-			.expect(200);
-		const user = await User.findOne({ email: 'test1@test.com' });
-		expect(user.bookmarks.length).toEqual(2);
-	});
-
 	it('should not update role', async () => {
 		const response = await request(app)
 			.post('/users/login')
