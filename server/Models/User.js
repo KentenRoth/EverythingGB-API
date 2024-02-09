@@ -56,7 +56,7 @@ UserSchema.pre('save', async function (next) {
 	next();
 });
 
-UserSchema.methods.toJSON = function () {
+UserSchema.methods.getSafeUser = function () {
 	const user = this;
 	const userObject = user.toObject();
 
