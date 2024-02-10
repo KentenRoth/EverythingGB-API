@@ -2,7 +2,6 @@ const express = require('express');
 const router = new express.Router();
 const auth = require('../Middleware/auth');
 const User = require('../Models/User');
-const mongoose = require('mongoose');
 
 // creates new user
 router.post('/users', async (req, res) => {
@@ -34,7 +33,15 @@ router.get('/users/me', auth, async (req, res) => {
 // Get recipes from bookmarks
 router.get('/users/me/bookmarks', auth, async (req, res) => {
 	try {
-		const user = await User.findById(req.user._id).populate('bookmarks');
+		const user = await User.findById(req.user._id).populate({
+			path: 'bookmarks',
+			model: 'Recipe',
+			populate: {
+				path: 'user',
+				model: 'User',
+				select: 'name role',
+			},
+		});
 		res.send(user.bookmarks);
 	} catch (e) {
 		res.status(500).send(e.message);
