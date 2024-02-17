@@ -2,6 +2,7 @@ const express = require('express');
 const router = new express.Router();
 const auth = require('../Middleware/auth');
 const User = require('../Models/User');
+const Recipe = require('../Models/Recipe');
 
 // creates new user
 router.post('/users', async (req, res) => {
@@ -32,17 +33,38 @@ router.get('/users/me', auth, async (req, res) => {
 
 // Get recipes from bookmarks
 router.get('/users/me/bookmarks', auth, async (req, res) => {
+	const page = parseInt(req.query.page) || 1;
+	const limit = parseInt(req.query.limit) || 10;
+	const skip = (page - 1) * limit;
+	const searchQuery = String(req.query.q);
+
 	try {
-		const user = await User.findById(req.user._id).populate({
-			path: 'bookmarks',
-			model: 'Recipe',
-			populate: {
-				path: 'user',
-				model: 'User',
-				select: 'name role',
-			},
+		const user = await User.findById(req.user._id);
+		const bookmarksIds = user.bookmarks.map((bookmark) => bookmark._id);
+
+		let query = { _id: { $in: bookmarksIds } };
+		if (searchQuery && searchQuery !== 'undefined') {
+			query.$or = [
+				{ title: { $regex: searchQuery, $options: 'i' } },
+				{ ingredients: { $regex: searchQuery, $options: 'i' } },
+				{ ingredientsSetTwo: { $regex: searchQuery, $options: 'i' } },
+				{ category: { $regex: searchQuery, $options: 'i' } },
+			];
+		}
+
+		const recipes = await Recipe.find(query)
+			.populate('user', 'name role')
+			.skip(skip)
+			.limit(limit);
+
+		const total = await Recipe.countDocuments(query);
+
+		res.send({
+			total,
+			page,
+			pages: Math.ceil(total / limit),
+			data: recipes,
 		});
-		res.send(user.bookmarks);
 	} catch (e) {
 		res.status(500).send(e.message);
 	}
