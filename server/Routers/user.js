@@ -3,6 +3,7 @@ const router = new express.Router();
 const auth = require('../Middleware/auth');
 const User = require('../Models/User');
 const Recipe = require('../Models/Recipe');
+const bcrypt = require('bcryptjs');
 
 // creates new user
 router.post('/users', async (req, res) => {
@@ -124,7 +125,13 @@ router.post('/users/logoutAll', auth, async (req, res) => {
 // Update User (only updates name, email, password, and bookmarks)
 router.patch('/users/me', auth, async (req, res) => {
 	const updates = Object.keys(req.body);
-	const allowedUpdates = ['name', 'email', 'password', 'bookmarks'];
+	const allowedUpdates = [
+		'name',
+		'email',
+		'password',
+		'bookmarks',
+		'currentPassword',
+	];
 	const isValidOperation = updates.every((update) =>
 		allowedUpdates.includes(update)
 	);
@@ -132,6 +139,15 @@ router.patch('/users/me', auth, async (req, res) => {
 		return res.status(400).send({ error: 'Invalid updates' });
 	}
 	try {
+		const isMatch = await bcrypt.compare(
+			req.body.currentPassword,
+			req.user.password
+		);
+		if (!isMatch) {
+			return res
+				.status(400)
+				.send({ error: 'Incorrect current password' });
+		}
 		updates.forEach((update) => {
 			if (update === 'bookmarks') {
 				req.user.bookmarks = req.body.bookmarks;
