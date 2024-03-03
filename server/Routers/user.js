@@ -132,6 +132,7 @@ router.patch('/users/me', auth, async (req, res) => {
 		'bookmarks',
 		'currentPassword',
 	];
+	const passRequiredUpdates = ['name', 'email', 'password'];
 	const isValidOperation = updates.every((update) =>
 		allowedUpdates.includes(update)
 	);
@@ -139,15 +140,22 @@ router.patch('/users/me', auth, async (req, res) => {
 		return res.status(400).send({ error: 'Invalid updates' });
 	}
 	try {
-		const isMatch = await bcrypt.compare(
-			req.body.currentPassword,
-			req.user.password
+		const isPassRequiredUpdate = updates.some((update) =>
+			passRequiredUpdates.includes(update)
 		);
-		if (!isMatch) {
-			return res
-				.status(400)
-				.send({ error: 'Incorrect current password' });
+
+		if (isPassRequiredUpdate) {
+			const isMatch = await bcrypt.compare(
+				req.body.currentPassword,
+				req.user.password
+			);
+			if (!isMatch) {
+				return res
+					.status(400)
+					.send({ error: 'Incorrect current password' });
+			}
 		}
+
 		updates.forEach((update) => {
 			if (update === 'bookmarks') {
 				req.user.bookmarks = req.body.bookmarks;
