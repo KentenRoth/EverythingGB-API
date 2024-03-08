@@ -22,16 +22,17 @@ router.get('/recipes', auth, async (req, res) => {
 	const skip = (page - 1) * limit;
 
 	try {
-		let recipes = await Recipe.find({})
+		let query = {};
+		if (req.user.role !== 'admin') {
+			query = { 'user.role': { $ne: 'admin' } };
+		}
+
+		let recipes = await Recipe.find(query)
 			.populate('user', 'name role')
 			.skip(skip)
 			.limit(limit);
 
-		if (req.user.role !== 'admin') {
-			recipes = recipes.filter((recipe) => recipe.user.role !== 'admin');
-		}
-
-		const total = await Recipe.countDocuments();
+		const total = await Recipe.countDocuments(query);
 
 		res.send({
 			total,
