@@ -24,7 +24,12 @@ router.get('/recipes', auth, async (req, res) => {
 	try {
 		let query = {};
 		if (req.user.role !== 'admin') {
-			query = { 'user.role': { $ne: 'admin' } };
+			const nonAdminUsers = await User.find(
+				{ role: { $ne: 'admin' } },
+				'_id'
+			);
+			const nonAdminUserIds = nonAdminUsers.map((user) => user._id);
+			query = { user: { $in: nonAdminUserIds } };
 		}
 
 		let recipes = await Recipe.find(query)
